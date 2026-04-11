@@ -10,13 +10,12 @@ import StudentForm from "./components/StudentForm";
 import ProtectedRoute from "./pages/ProtectedRoute";
 
 function App() {
-  // ✅ Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("token")
   );
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
 
         {/* 🔓 Public */}
