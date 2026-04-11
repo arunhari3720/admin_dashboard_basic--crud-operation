@@ -94,7 +94,7 @@ function UserForm() {
       setShowModal(false);
       fetchUsers();
 
-    } catch (err) {
+    } catch (error) {
       toast.error("Something went wrong ❌");
     }
 

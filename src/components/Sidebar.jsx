@@ -29,11 +29,11 @@ const Sidebar = ({ closeSidebar }) => {
   </li>
 
   <li className="px-4 py-2 text-lg rounded-md hover:bg-red-100 cursor-pointer transition">
-    <Link to="/UserForm">UserForm</Link>
+    <Link to="userform">UserForm</Link>
   </li>
 
   <li className="px-4 py-2 text-lg rounded-md hover:bg-red-100 cursor-pointer transition">
-    <Link to="/StudentForm">StudentForm</Link>
+    <Link to="studentform">StudentForm</Link>
   </li>
 
   <li className="px-4 py-2 text-lg font-bold rounded-md hover:bg-red-100 cursor-pointer transition">

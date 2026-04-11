@@ -1,21 +1,26 @@
-import { Search, Bell, Moon, Menu } from "lucide-react";
+import { Search, Bell, Moon, Menu, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ toggleSidebar }) => {
+  const navigate = useNavigate(); // ✅ must be inside component
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/"); // redirect to login
+  };
+
   return (
     <div className="w-full bg-white shadow px-4 sm:px-6 py-3 flex items-center justify-between">
 
       {/* Left Section */}
       <div className="flex items-center gap-3">
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={toggleSidebar}
-          className="lg:hidden"
-        >
+        <button onClick={toggleSidebar} className="lg:hidden">
           <Menu size={22} />
         </button>
 
-        {/* Search (hidden on very small screens) */}
         <div className="hidden sm:flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md">
           <Search size={18} />
           <input
@@ -31,6 +36,15 @@ const Navbar = ({ toggleSidebar }) => {
         <Moon size={20} className="cursor-pointer" />
         <Bell size={20} className="cursor-pointer" />
 
+        {/* 🔥 Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-1 text-red-500 hover:text-red-600 text-sm font-medium"
+        >
+          <LogOut size={18} />
+          <span className="hidden sm:block">Logout</span>
+        </button>
+
         {/* Profile */}
         <div className="flex items-center gap-2">
           <img
@@ -39,11 +53,11 @@ const Navbar = ({ toggleSidebar }) => {
             alt="profile"
           />
 
-          {/* Hide name on very small screens */}
           <span className="hidden sm:block text-sm font-medium">
             Admin
           </span>
         </div>
+
       </div>
     </div>
   );

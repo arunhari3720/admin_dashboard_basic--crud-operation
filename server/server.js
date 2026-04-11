@@ -1,9 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import mongoose from "mongoose";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import studentRoutes from "./routes/studentRoutes.js";
+import authRoutes from "./routes/auth.js";
 import path from "path";
 
 
@@ -15,6 +17,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+
 // test route
 app.get("/", (req, res) => {
   res.send("API running...");
@@ -24,5 +28,8 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/students",studentRoutes)
 app.use("/uploads", express.static("uploads"));
+app.use("/api",authRoutes);
+app.use("/api/login",authRoutes);
+app.use("/api/register",authRoutes);
 
 app.listen(5000, () => console.log("Server running on port 5000"));
