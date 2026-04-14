@@ -4,32 +4,36 @@ import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff } from "lucide-react";
 
-function Login({ setIsAuthenticated }) {
+function Login() {
   const [form, setForm] = useState({
     email: "",
     password: ""
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
+  // ================= INPUT CHANGE =================
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // 🔥 Block uppercase in email
-    if (name === "email" && /[A-Z]/.test(value)) {
-      setError("No capital letters allowed ❌");
-      return;
-    }
+    setForm({
+      ...form,
+      [name]: name === "email" ? value.toLowerCase() : value
+    });
 
-    setError("");
-    setForm({ ...form, [name]: value });
+    if (error) setError(""); // 🔥 clear error while typing
   };
 
+  // ================= LOGIN =================
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    setError("");
+    setLoading(true);
 
     try {
       const res = await axios.post(
@@ -37,17 +41,35 @@ function Login({ setIsAuthenticated }) {
         form
       );
 
+      console.log("LOGIN RESPONSE:", res.data);
+
+      // ✅ store token & user
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      setIsAuthenticated(true);
-      navigate("/dashboard");
+      const role = res.data.user.role;
+
+      // 🔥 ROLE BASED REDIRECT
+      if (role === "superadmin" || role === "admin") {
+        navigate("/admin");
+      } else if (role === "hr") {
+        navigate("/hr");
+      } else {
+        navigate("/user");
+      }
 
     } catch (err) {
-      setError("Invalid credentials ❌");
+      console.log("LOGIN ERROR:", err);
+
+      setError(
+        err.response?.data?.message || "Invalid credentials ❌"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
+  // ================= GOOGLE LOGIN =================
   const handleGoogleLogin = () => {
     alert("Google login coming soon 🚀");
   };
@@ -61,20 +83,10 @@ function Login({ setIsAuthenticated }) {
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">
           Welcome Back 👋
         </h2>
+
         <p className="text-center text-gray-500 mb-6">
           Login to your account
         </p>
-
-        {/* Google Login */}
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 border py-2 rounded-lg hover:bg-gray-100 transition mb-4"
-        >
-          <FcGoogle size={22} />
-          <span className="text-sm font-medium">
-            Continue with Google
-          </span>
-        </button>
 
         {/* Divider */}
         <div className="flex items-center gap-2 my-4">
@@ -102,7 +114,7 @@ function Login({ setIsAuthenticated }) {
             />
           </div>
 
-          {/* 🔥 Animated Password Field */}
+          {/* Password */}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -115,7 +127,6 @@ function Login({ setIsAuthenticated }) {
               required
             />
 
-            {/* Floating Label */}
             <label
               className="absolute left-3 top-2 text-gray-500 text-sm transition-all
               peer-placeholder-shown:top-3 peer-placeholder-shown:text-base
@@ -125,7 +136,7 @@ function Login({ setIsAuthenticated }) {
               Password
             </label>
 
-            {/* 👁 Show/Hide */}
+            {/* 👁 Toggle */}
             <div
               className="absolute right-3 top-3 cursor-pointer text-gray-500"
               onClick={() => setShowPassword(!showPassword)}
@@ -144,11 +155,28 @@ function Login({ setIsAuthenticated }) {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-semibold"
+            disabled={loading}
+            className={`w-full py-2 rounded-lg font-semibold transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700 text-white"
+            }`}
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
+
         </form>
+
+        {/* Google Login */}
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full flex items-center justify-center gap-3 border py-2 rounded-lg hover:bg-gray-100 transition mb-4 mt-4"
+        >
+          <FcGoogle size={22} />
+          <span className="text-sm font-medium">
+            Continue with Google
+          </span>
+        </button>
 
         {/* Footer */}
         <p className="text-center text-sm mt-6 text-gray-600">
