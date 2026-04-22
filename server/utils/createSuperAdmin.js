@@ -1,5 +1,5 @@
-import User from "../models/User.js";
-import bcrypt from "bcryptjs";
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 
 const createSuperAdmin = async () => {
   try {
@@ -30,4 +30,4 @@ const createSuperAdmin = async () => {
   }
 };
 
-export default createSuperAdmin;
+module.exports = createSuperAdmin;

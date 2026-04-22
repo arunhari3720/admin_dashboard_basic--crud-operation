@@ -1,13 +1,13 @@
-import express from "express";
-import {
+const express = require("express");
+const {
   registerUser,
   getUsers,
   updateUser,
-  deleteUser
-} from "../controllers/userController.js";
+  deleteUser,
+} = require("../controllers/userController");
 
-import upload from "../middleware/upload.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+const upload = require("../middleware/upload");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -16,14 +16,13 @@ router.post("/register", upload.single("image"), registerUser);
 
 // ================= PROTECTED ROUTES =================
 
-// 🔐 Get all users (only logged in)
+// Get all users
 router.get("/", authMiddleware, getUsers);
 
-// 🔐 Update user (only logged in)
+// Update user
 router.put("/:id", authMiddleware, updateUser);
 
-// 🔐 Delete user (only logged in)
+// Delete user
 router.delete("/:id", authMiddleware, deleteUser);
 
-
-export default router;
+module.exports = router;

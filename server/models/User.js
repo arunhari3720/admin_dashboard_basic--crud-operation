@@ -1,44 +1,48 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
 
     email: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true
+      lowercase: true,
     },
 
     password: {
       type: String,
-      required: true
+      required: true,
     },
 
     image: {
       type: String,
-      default: ""
+      default: "",
     },
 
     address: {
       type: String,
-      default: ""
+      default: "",
     },
 
     role: {
       type: String,
-      enum: ["superadmin","user", "admin","hr", "teamleader"], // 🔥 restrict values
-      default: "user"
-    }
+      enum: ["superadmin", "user", "admin", "hr", "teamleader"],
+      default: "user",
+    },
   },
   {
-    timestamps: true // 🔥 adds createdAt & updatedAt
+    timestamps: true,
   }
 );
 
-export default mongoose.model("User", userSchema);
+// Prevent overwrite error
+const User =
+  mongoose.models.User || mongoose.model("User", userSchema);
+
+module.exports = User;

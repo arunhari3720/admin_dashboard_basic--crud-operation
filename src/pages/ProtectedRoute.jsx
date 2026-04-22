@@ -8,13 +8,13 @@ function ProtectedRoute({ role }) {
     return <Navigate to="/" />;
   }
 
-  // 🔥 Admin + Superadmin access
+  // ✅ Admin + Superadmin
   if (role === "admin" && !["admin", "superadmin"].includes(user.role)) {
     return <Navigate to="/" />;
   }
 
-  // 🔥 HR only
-  if (role === "hr" && user.role !== "hr") {
+  // ✅ HR + Superadmin
+  if (role === "hr" && !["hr", "superadmin"].includes(user.role)) {
     return <Navigate to="/" />;
   }
 

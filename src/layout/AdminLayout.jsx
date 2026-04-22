@@ -1,43 +1,47 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom"; // ✅ ADD THIS
+import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
-const AdminLayout = () => { // ❌ remove children
+const AdminLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-screen w-full overflow-hidden bg-gray-100">
 
-      {/* Sidebar */}
+      {/* MOBILE SIDEBAR */}
       <div
-        className={`
-          fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg
-          transform ${isOpen ? "translate-x-0" : "-translate-x-full"}
-          transition-transform duration-300 ease-in-out
-          lg:translate-x-0 lg:static lg:shadow-none
-        `}
+        className={`fixed inset-y-0 left-0 z-50 bg-white transform ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } transition lg:hidden ${isCollapsed ? "w-20" : "w-64"}`}
       >
-        <Sidebar closeSidebar={() => setIsOpen(false)} />
+        <Sidebar isCollapsed={isCollapsed} />
       </div>
 
-      {/* Overlay */}
+      {/* OVERLAY */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black opacity-40 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
           onClick={() => setIsOpen(false)}
-        ></div>
+        />
       )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col w-full">
+      {/* DESKTOP SIDEBAR */}
+      <div className={`hidden lg:flex ${isCollapsed ? "w-20" : "w-64"}`}>
+        <Sidebar isCollapsed={isCollapsed} />
+      </div>
 
-        {/* Navbar */}
-        <Navbar toggleSidebar={() => setIsOpen(true)} />
+      {/* MAIN */}
+      <div className="flex-1 flex flex-col">
 
-        {/* Page Content */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
-          <Outlet /> {/* 🔥 THIS IS THE FIX */}
+        <Navbar
+          toggleSidebar={() => setIsOpen(true)}
+          toggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        />
+
+        <div className="flex-1 overflow-auto p-6">
+          <Outlet />
         </div>
 
       </div>

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema({
   name: String,
@@ -7,7 +7,11 @@ const studentSchema = new mongoose.Schema({
   subject2: Number,
   subject3: Number,
   subject4: Number,
-  subject5: Number
+  subject5: Number,
 });
 
-export default mongoose.model("Student", studentSchema);
+// Prevent overwrite error
+const Student =
+  mongoose.models.Student || mongoose.model("Student", studentSchema);
+
+module.exports = Student;

@@ -1,19 +1,19 @@
-import Student from "../models/Student.js";
+const Student = require("../models/Student");
 
 // CREATE
-export const addStudent = async (req, res) => {
+const addStudent = async (req, res) => {
   const student = await Student.create(req.body);
   res.json(student);
 };
 
 // GET
-export const getStudents = async (req, res) => {
+const getStudents = async (req, res) => {
   const students = await Student.find();
   res.json(students);
 };
 
 // UPDATE
-export const updateStudent = async (req, res) => {
+const updateStudent = async (req, res) => {
   const student = await Student.findByIdAndUpdate(
     req.params.id,
     req.body,
@@ -23,7 +23,14 @@ export const updateStudent = async (req, res) => {
 };
 
 // DELETE
-export const deleteStudent = async (req, res) => {
+const deleteStudent = async (req, res) => {
   await Student.findByIdAndDelete(req.params.id);
   res.json({ message: "Deleted" });
+};
+
+module.exports = {
+  addStudent,
+  getStudents,
+  updateStudent,
+  deleteStudent,
 };

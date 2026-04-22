@@ -1,63 +1,94 @@
-import { Search, Bell, Moon, Menu, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Search, Bell, Moon, Menu } from "lucide-react";
+import { useState, useEffect } from "react";
+import { socket } from "../socket/socket";
 
-const Navbar = ({ toggleSidebar }) => {
-  const navigate = useNavigate(); // ✅ must be inside component
+const Navbar = ({ toggleSidebar, toggleCollapse }) => {
+  const [user, setUser] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [open, setOpen] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
 
-    navigate("/"); // redirect to login
-  };
+  useEffect(() => {
+    socket.on("new-payment", (data) => {
+      setNotifications((prev) => [
+        { ...data, read: false },
+        ...prev,
+      ]);
+    });
+
+    return () => socket.off("new-payment");
+  }, []);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="w-full bg-white shadow px-4 sm:px-6 py-3 flex items-center justify-between">
+    <div className="w-full bg-white border-b px-6 py-3 flex items-center justify-between">
 
-      {/* Left Section */}
-      <div className="flex items-center gap-3">
+      {/* LEFT */}
+      <div className="flex items-center gap-4">
 
+        {/* Mobile Sidebar */}
         <button onClick={toggleSidebar} className="lg:hidden">
           <Menu size={22} />
         </button>
 
-        <div className="hidden sm:flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md">
+        {/* 🔥 Desktop Collapse (NEW) */}
+        <button
+          onClick={toggleCollapse}
+          className="hidden lg:flex items-center justify-center w-10 h-10 border rounded-lg hover:bg-gray-100 transition"
+        >
+          <Menu size={18} />
+        </button>
+
+        {/* Search */}
+        <div className="hidden sm:flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg w-64">
           <Search size={18} />
           <input
-            className="bg-transparent outline-none text-sm w-[120px] md:w-[180px]"
+            className="bg-transparent outline-none text-sm w-full"
             placeholder="Search..."
           />
         </div>
       </div>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-3 sm:gap-4">
+      {/* RIGHT */}
+      <div className="flex items-center gap-6 relative">
 
-        <Moon size={20} className="cursor-pointer" />
-        <Bell size={20} className="cursor-pointer" />
+        <Moon className="cursor-pointer" />
 
-        {/* 🔥 Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1 text-red-500 hover:text-red-600 text-sm font-medium"
-        >
-          <LogOut size={18} />
-          <span className="hidden sm:block">Logout</span>
-        </button>
-
-        {/* Profile */}
-        <div className="flex items-center gap-2">
-          <img
-            src="https://i.pravatar.cc/40"
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
-            alt="profile"
-          />
-
-          <span className="hidden sm:block text-sm font-medium">
-            Admin
-          </span>
+        <div onClick={() => setOpen(!open)} className="relative cursor-pointer">
+          <Bell />
+          {unreadCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] px-1.5 rounded-full">
+              {unreadCount}
+            </span>
+          )}
         </div>
 
+        {open && (
+          <div className="absolute right-0 top-14 w-80 bg-white shadow-xl border rounded-xl z-50">
+            <p className="p-4 text-sm text-gray-500 text-center">
+              Notifications
+            </p>
+          </div>
+        )}
+
+        {user && (
+          <div className="flex items-center gap-3">
+            <img
+              src={`https://i.pravatar.cc/40?u=${user.email}`}
+              className="w-9 h-9 rounded-full border"
+              alt="profile"
+            />
+            <div className="hidden sm:flex flex-col text-sm">
+              <span>{user.name}</span>
+              <span className="text-xs text-gray-500">{user.role}</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
