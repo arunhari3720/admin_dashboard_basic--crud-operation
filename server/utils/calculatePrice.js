@@ -1,5 +1,6 @@
 // utils/calculatePrice.js
-export const calculateFinalPrice = (price, offer) => {
+
+const calculateFinalPrice = (price, offer) => {
   let final = price;
 
   if (offer) {
@@ -10,5 +11,7 @@ export const calculateFinalPrice = (price, offer) => {
     }
   }
 
-  return Math.max(0, final); // prevent negative
+  return Math.max(0, final);
 };
+
+module.exports = { calculateFinalPrice };

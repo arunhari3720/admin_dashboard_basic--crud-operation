@@ -11,8 +11,51 @@ import {
   Package,
   PlusSquare
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
+
+// 🔥 TOOLTIP COMPONENT — uses fixed positioning to escape overflow
+const TooltipItem = ({ icon, name, isCollapsed, children }) => {
+  const [show, setShow] = useState(false);
+  const [pos, setPos] = useState({ top: 0 });
+  const ref = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (!isCollapsed) return;
+    const rect = ref.current?.getBoundingClientRect();
+    if (rect) {
+      setPos({ top: rect.top + rect.height / 2 });
+    }
+    setShow(true);
+  };
+
+  const handleMouseLeave = () => setShow(false);
+
+  return (
+    <div
+      ref={ref}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="relative w-full"
+    >
+      {children}
+
+      {/* 🔥 FIXED TOOLTIP — escapes overflow */}
+      {isCollapsed && show && (
+        <div
+          style={{ top: pos.top, left: "72px", transform: "translateY(-50%)" }}
+          className="fixed z-[9999] bg-gray-900 text-white text-xs px-2 py-1 rounded-md whitespace-nowrap pointer-events-none shadow-lg"
+        >
+          {name}
+          {/* Arrow */}
+          <span
+            className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900"
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Sidebar = ({ isCollapsed }) => {
   const [logo, setLogo] = useState("");
@@ -93,35 +136,23 @@ const Sidebar = ({ isCollapsed }) => {
         )}
 
         {menuItems.map((item, index) => (
-          <NavLink
-            key={index}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex items-center ${
-                isCollapsed ? "justify-center" : "gap-3"
-              } w-full h-12 rounded-xl transition-all duration-200 group relative ${
-                isActive
-                  ? "bg-blue-100 text-blue-600"
-                  : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-              }`
-            }
-          >
-            {/* ICON + TOOLTIP WRAPPER */}
-            <div className="group relative">
+          <TooltipItem key={index} name={item.name} isCollapsed={isCollapsed}>
+            <NavLink
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center ${
+                  isCollapsed ? "justify-center" : "gap-3"
+                } w-full h-12 rounded-xl transition-all duration-200 group relative ${
+                  isActive
+                    ? "bg-blue-100 text-blue-600"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                }`
+              }
+            >
               {item.icon}
-
-              {/* 🔥 TOOLTIP (ONLY COLLAPSED) */}
-              {isCollapsed && (
-  <span className="pointer-events-none absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-[9999]">
-    {item.name}
-  </span>
-)}
-              
-            </div>
-
-            {/* TEXT */}
-            {!isCollapsed && <span>{item.name}</span>}
-          </NavLink>
+              {!isCollapsed && <span>{item.name}</span>}
+            </NavLink>
+          </TooltipItem>
         ))}
       </ul>
 
